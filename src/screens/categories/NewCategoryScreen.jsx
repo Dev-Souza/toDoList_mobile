@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
   ScrollView,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {
   TextInput,
@@ -14,10 +14,14 @@ import {
 } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import toDoListService from '../../services/toDoListService';
+import { useNavigation } from '@react-navigation/native';
 
 export default function NewCategoryScreen() {
-  const [visibleColorMenu, setVisibleColorMenu] = React.useState(false);
-  const [visibleTypeMenu, setVisibleTypeMenu] = React.useState(false);
+  const navigation = useNavigation();
+  const [activityIndicator, setActivityIndicator] = useState(false);
+  const [visibleColorMenu, setVisibleColorMenu] = useState(false);
+  const [visibleTypeMenu, setVisibleTypeMenu] = useState(false);
 
   const colorOptions = [
     'VERMELHO', 'AZUL', 'VERDE', 'AMARELO',
@@ -36,6 +40,20 @@ export default function NewCategoryScreen() {
     tipoCategoryEnum: Yup.string().required('Tipo é obrigatório'),
   });
 
+  const createCategory = async (values) => {
+    try {
+      setActivityIndicator(true)
+      console.log(values)
+      const response = await toDoListService.post("categories", values)
+      setActivityIndicator(false)
+      alert('Categoria criada com sucesso!');
+      // navigation.navigate('ListCategoriesScreen');
+    } catch (error) {
+      alert("Erro ao cadastrar categoria!", error);
+      console.log(error);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Nova Categoria</Text>
@@ -50,7 +68,7 @@ export default function NewCategoryScreen() {
         }}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          console.log('Categoria enviada:', values);
+          createCategory(values);
         }}
       >
         {({
@@ -94,17 +112,24 @@ export default function NewCategoryScreen() {
 
             {/* Menu de Cor */}
             <View style={styles.menuContainer}>
-              <Text style={styles.label}>Cor da Categoria</Text>
-              <TouchableOpacity
-                onPress={() => setVisibleColorMenu(true)}
-                style={styles.menuInput}
-              >
-                <Text>{values.corCategoryEnum || 'Selecionar cor'}</Text>
-              </TouchableOpacity>
               <Menu
                 visible={visibleColorMenu}
                 onDismiss={() => setVisibleColorMenu(false)}
-                anchor={<View />}
+                anchor={
+                  <TouchableWithoutFeedback onPress={() => setVisibleColorMenu(true)}>
+                    <View pointerEvents="box-only">
+                      <TextInput
+                        mode="outlined"
+                        label="Selecionar cor"
+                        value={values.corCategoryEnum}
+                        editable={false}
+                        style={styles.input}
+                        right={<TextInput.Icon icon="chevron-down" />}
+                        error={touched.corCategoryEnum && !!errors.corCategoryEnum}
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                }
               >
                 {colorOptions.map((color) => (
                   <Menu.Item
@@ -124,17 +149,24 @@ export default function NewCategoryScreen() {
 
             {/* Menu de Tipo */}
             <View style={styles.menuContainer}>
-              <Text style={styles.label}>Tipo da Categoria</Text>
-              <TouchableOpacity
-                onPress={() => setVisibleTypeMenu(true)}
-                style={styles.menuInput}
-              >
-                <Text>{values.tipoCategoryEnum || 'Selecionar tipo'}</Text>
-              </TouchableOpacity>
               <Menu
                 visible={visibleTypeMenu}
                 onDismiss={() => setVisibleTypeMenu(false)}
-                anchor={<View />}
+                anchor={
+                  <TouchableWithoutFeedback onPress={() => setVisibleTypeMenu(true)}>
+                    <View pointerEvents="box-only">
+                      <TextInput
+                        mode="outlined"
+                        label="Selecionar tipo"
+                        value={values.tipoCategoryEnum}
+                        editable={false}
+                        style={styles.input}
+                        right={<TextInput.Icon icon="chevron-down" />}
+                        error={touched.tipoCategoryEnum && !!errors.tipoCategoryEnum}
+                      />
+                    </View>
+                  </TouchableWithoutFeedback>
+                }
               >
                 {typeOptions.map((type) => (
                   <Menu.Item
@@ -152,7 +184,6 @@ export default function NewCategoryScreen() {
               </HelperText>
             </View>
 
-            {/* Botão de envio */}
             <Button
               mode="contained"
               icon="plus-circle-outline"
@@ -185,18 +216,6 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     marginBottom: 8,
-  },
-  label: {
-    fontSize: 12,
-    color: 'gray',
-    marginBottom: 4,
-  },
-  menuInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 12,
-    justifyContent: 'center',
   },
   button: {
     marginTop: 16,
