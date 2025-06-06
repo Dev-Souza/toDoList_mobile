@@ -1,10 +1,12 @@
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Ionicons } from '@expo/vector-icons'
 
-import TabsMainScreenRoutes from './TabsMainScreenRoutes'
+import TabsMainScreenRoutes from './TabsTasksRoutes'
 import NewTaskScreen from '../screens/tasks/drawer/NewTaskScreen'
 import PerfilScreen from '../screens/users/PerfilScreen'
 import SairRoutes from './SairRoutes'
+import NewCategoryScreen from '../screens/categories/NewCategoryScreen'
+import TabsCategoriesRoutes from './TabsCategoriesRoutes'
 
 const Drawer = createDrawerNavigator()
 
@@ -21,7 +23,7 @@ export default function DrawerMainScreenRoutes() {
                     ),
                 }}
             />
-            <Drawer.Screen 
+            <Drawer.Screen
                 name='NewTaskScreen'
                 component={NewTaskScreen}
                 options={{
@@ -31,7 +33,17 @@ export default function DrawerMainScreenRoutes() {
                     ),
                 }}
             />
-            <Drawer.Screen 
+            <Drawer.Screen
+                name='Categories'
+                component={TabsCategoriesRoutes}
+                options={{
+                    title: 'Categorias',
+                    drawerIcon: ({ color, size }) => (
+                        <Ionicons name="layers-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Drawer.Screen
                 name='PerfilScreen'
                 component={PerfilScreen}
                 options={{
@@ -41,7 +53,7 @@ export default function DrawerMainScreenRoutes() {
                     ),
                 }}
             />
-            <Drawer.Screen 
+            <Drawer.Screen
                 name='Sair'
                 component={SairRoutes}
                 options={{
