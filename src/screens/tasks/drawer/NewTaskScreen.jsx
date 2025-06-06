@@ -3,158 +3,177 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 import { TextInput, Button, HelperText, Text, Menu } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { Ionicons } from '@expo/vector-icons';
+import ActivityIndicatorComponent from '../../../components/ActivityIndicadorComponent';
+import toDoListService from '../../../services/toDoListService';
 
-const COLOR_OPTIONS = [
-  'VERMELHO', 'AZUL', 'VERDE', 'AMARELO',
-  'LARANJA', 'ROXO', 'ROSA', 'CINZA', 'PRETO',
-];
-
-const TYPE_OPTIONS = [
-  'PESSOAL', 'PROFISSIONAL', 'ESTUDOS', 'SAUDE',
-  'FINANCAS', 'LAZER', 'CASA', 'VIAGEM', 'COMPRAS', 'OUTROS',
-];
+const STATUS_OPTIONS = ['CONCLUIDA', 'PENDENTE', 'EM_ANDAMENTO', 'CANCELADA'];
+const PRIORITY_OPTIONS = ['BAIXA', 'MEDIA', 'ALTA', 'URGENTE'];
 
 const validationSchema = Yup.object().shape({
-  nameCategory: Yup.string().required('Nome é obrigatório'),
-  descriptionCategory: Yup.string().required('Descrição é obrigatória'),
-  corCategoryEnum: Yup.string().required('Cor é obrigatória'),
-  tipoCategoryEnum: Yup.string().required('Tipo é obrigatório'),
+  titleTask: Yup.string().required('Título é obrigatório'),
+  descriptionTask: Yup.string().required('Descrição é obrigatória'),
+  statusTask: Yup.string().required('Status é obrigatório'),
+  priorityTask: Yup.string().required('Prioridade é obrigatória'),
+  dateLimit: Yup.string().required('Data limite é obrigatória'),
 });
 
-export default function NewCategoryScreen() {
-  const [colorMenuVisible, setColorMenuVisible] = useState(false);
-  const [typeMenuVisible, setTypeMenuVisible] = useState(false);
+export default function NewTaskScreen() {
+  // State the loading
+  const [activityIndicator, setActivityIndicator] = useState(false)
 
-  const openColorMenu = () => setColorMenuVisible(true);
-  const closeColorMenu = () => setColorMenuVisible(false);
-  const openTypeMenu = () => setTypeMenuVisible(true);
-  const closeTypeMenu = () => setTypeMenuVisible(false);
+  const [statusMenuVisible, setStatusMenuVisible] = useState(false);
+  const [priorityMenuVisible, setPriorityMenuVisible] = useState(false);
+
+  const openStatusMenu = () => setStatusMenuVisible(true);
+  const closeStatusMenu = () => setStatusMenuVisible(false);
+  const openPriorityMenu = () => setPriorityMenuVisible(true);
+  const closePriorityMenu = () => setPriorityMenuVisible(false);
+
+  const createTask = async (values) => {
+    try {
+      const response = await toDoListService.post()
+    } catch (error) {
+
+    }
+  }
+
+  // Chamando o LOADING
+  if (activityIndicator) {
+    return <ActivityIndicatorComponent />
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Nova Categoria</Text>
-
+      <Text style={styles.title}>Nova Tarefa</Text>
       <Formik
         initialValues={{
-          nameCategory: '',
-          descriptionCategory: '',
-          corCategoryEnum: '',
-          tipoCategoryEnum: '',
+          titleTask: '',
+          descriptionTask: '',
+          statusTask: '',
+          priorityTask: '',
+          dateLimit: '',
           user: '',
+          category: '',
         }}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          console.log('Categoria enviada:', values);
+          createTask(values)
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          setFieldValue,
-          values,
-          errors,
-          touched,
-        }) => (
+        {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
           <View>
             <TextInput
-              label="Nome da Categoria"
+              label="Título"
               mode="outlined"
-              left={<TextInput.Icon icon="label-outline" />}
-              value={values.nameCategory}
-              onChangeText={handleChange('nameCategory')}
-              onBlur={handleBlur('nameCategory')}
-              error={touched.nameCategory && !!errors.nameCategory}
+              left={<TextInput.Icon icon={() => <Ionicons name="clipboard-outline" size={20} />} />}
+              value={values.titleTask}
+              onChangeText={handleChange('titleTask')}
+              onBlur={handleBlur('titleTask')}
+              error={touched.titleTask && !!errors.titleTask}
               style={styles.input}
             />
-            <HelperText type="error" visible={touched.nameCategory && !!errors.nameCategory}>
-              {errors.nameCategory}
+            <HelperText type="error" visible={touched.titleTask && !!errors.titleTask}>
+              {errors.titleTask}
             </HelperText>
 
             <TextInput
               label="Descrição"
               mode="outlined"
-              left={<TextInput.Icon icon="text" />}
-              value={values.descriptionCategory}
-              onChangeText={handleChange('descriptionCategory')}
-              onBlur={handleBlur('descriptionCategory')}
-              error={touched.descriptionCategory && !!errors.descriptionCategory}
               multiline
+              left={<TextInput.Icon icon={() => <Ionicons name="document-text-outline" size={20} />} />}
+              value={values.descriptionTask}
+              onChangeText={handleChange('descriptionTask')}
+              onBlur={handleBlur('descriptionTask')}
+              error={touched.descriptionTask && !!errors.descriptionTask}
               style={styles.input}
             />
-            <HelperText type="error" visible={touched.descriptionCategory && !!errors.descriptionCategory}>
-              {errors.descriptionCategory}
+            <HelperText type="error" visible={touched.descriptionTask && !!errors.descriptionTask}>
+              {errors.descriptionTask}
             </HelperText>
 
-            {/* Select Cor */}
+            {/* Select Status */}
             <Menu
-              visible={colorMenuVisible}
-              onDismiss={closeColorMenu}
+              visible={statusMenuVisible}
+              onDismiss={closeStatusMenu}
               anchor={
                 <TextInput
-                  label="Cor"
+                  label="Status"
                   mode="outlined"
-                  value={values.corCategoryEnum}
-                  onFocus={openColorMenu}
+                  value={values.statusTask}
+                  onFocus={openStatusMenu}
                   showSoftInputOnFocus={false}
-                  left={<TextInput.Icon icon="palette-outline" />}
+                  left={<TextInput.Icon icon="flag-outline" />}
                   style={styles.input}
                 />
               }
             >
-              {COLOR_OPTIONS.map((option) => (
+              {STATUS_OPTIONS.map((option) => (
                 <Menu.Item
                   key={option}
                   onPress={() => {
-                    setFieldValue('corCategoryEnum', option);
-                    closeColorMenu();
+                    setFieldValue('statusTask', option);
+                    closeStatusMenu();
                   }}
                   title={option}
                 />
               ))}
             </Menu>
-            <HelperText type="error" visible={touched.corCategoryEnum && !!errors.corCategoryEnum}>
-              {errors.corCategoryEnum}
+            <HelperText type="error" visible={touched.statusTask && !!errors.statusTask}>
+              {errors.statusTask}
             </HelperText>
 
-            {/* Select Tipo */}
+            {/* Select Prioridade */}
             <Menu
-              visible={typeMenuVisible}
-              onDismiss={closeTypeMenu}
+              visible={priorityMenuVisible}
+              onDismiss={closePriorityMenu}
               anchor={
                 <TextInput
-                  label="Tipo"
+                  label="Prioridade"
                   mode="outlined"
-                  value={values.tipoCategoryEnum}
-                  onFocus={openTypeMenu}
+                  value={values.priorityTask}
+                  onFocus={openPriorityMenu}
                   showSoftInputOnFocus={false}
-                  left={<TextInput.Icon icon="tag-outline" />}
+                  left={<TextInput.Icon icon="alert-circle-outline" />}
                   style={styles.input}
                 />
               }
             >
-              {TYPE_OPTIONS.map((option) => (
+              {PRIORITY_OPTIONS.map((option) => (
                 <Menu.Item
                   key={option}
                   onPress={() => {
-                    setFieldValue('tipoCategoryEnum', option);
-                    closeTypeMenu();
+                    setFieldValue('priorityTask', option);
+                    closePriorityMenu();
                   }}
                   title={option}
                 />
               ))}
             </Menu>
-            <HelperText type="error" visible={touched.tipoCategoryEnum && !!errors.tipoCategoryEnum}>
-              {errors.tipoCategoryEnum}
+            <HelperText type="error" visible={touched.priorityTask && !!errors.priorityTask}>
+              {errors.priorityTask}
             </HelperText>
 
-            <Button
-              mode="contained"
-              icon="plus-circle-outline"
-              onPress={handleSubmit}
-              style={styles.button}
-            >
-              Criar Categoria
+            <TextInput
+              label="Data Limite (YYYY-MM-DD)"
+              mode="outlined"
+              left={<TextInput.Icon icon="calendar-outline" />}
+              value={values.dateLimit}
+              onChangeText={handleChange('dateLimit')}
+              onBlur={handleBlur('dateLimit')}
+              error={touched.dateLimit && !!errors.dateLimit}
+              style={styles.input}
+            />
+            <HelperText type="error" visible={touched.dateLimit && !!errors.dateLimit}>
+              {errors.dateLimit}
+            </HelperText>
+
+            {/* Hidden fields */}
+            <TextInput value={String(values.user)} style={{ display: 'none' }} />
+            <TextInput value={String(values.category)} style={{ display: 'none' }} />
+
+            <Button mode="contained" onPress={handleSubmit} style={styles.button}>
+              Criar Tarefa
             </Button>
           </View>
         )}
@@ -165,20 +184,21 @@ export default function NewCategoryScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 20,
     backgroundColor: '#fff',
     flexGrow: 1,
   },
   title: {
     fontSize: 24,
-    marginBottom: 16,
+    marginBottom: 20,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   input: {
-    marginBottom: 8,
+    marginBottom: 10,
+    backgroundColor: 'white',
   },
   button: {
-    marginTop: 16,
+    marginTop: 20,
   },
 });
