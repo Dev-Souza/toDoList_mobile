@@ -46,6 +46,8 @@ export default function RegisterUserScreen({ navigation }) {
       setActivityIndicator(true);
       const response = await toDoListService.post('users', values);
       alert("Cadastrado com sucesso!");
+      // Config navigation
+      navigation.goBack()
     } catch (error) {
       console.log(error.response?.data?.message || error.message || '')
       alert("Algum erro aconteceu! " + (error.response?.data?.message || error.message || ''));
