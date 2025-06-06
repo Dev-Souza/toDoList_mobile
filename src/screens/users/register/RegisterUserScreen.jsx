@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import toDoListService from '../../../services/toDoListService';
+import ActivityIndicatorComponent from '../../../components/ActivityIndicadorComponent';
 
 // Validação com Yup
 const RegisterSchema = Yup.object().shape({
@@ -14,7 +16,10 @@ const RegisterSchema = Yup.object().shape({
 });
 
 export default function RegisterUserScreen({ navigation }) {
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUri, setImageUri] = useState('');
+  const [activityIndicator, setActivityIndicator] = useState(false)
+  // ROLE
+  const [role, setRole] = useState("USER")
 
   const pickImage = async (setFieldValue) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -38,10 +43,21 @@ export default function RegisterUserScreen({ navigation }) {
   //Function create user
   const createUser = async (values) => {
     try {
-      
+      setActivityIndicator(true);
+      const response = await toDoListService.post('users', values);
+      alert("Cadastrado com sucesso!");
     } catch (error) {
+      console.log(error.response?.data?.message || error.message || '')
+      alert("Algum erro aconteceu! " + (error.response?.data?.message || error.message || ''));
       
-    } 
+    } finally {
+      setActivityIndicator(false);
+    }
+  };
+
+  // Chamando o LOADING
+  if (activityIndicator) {
+    return <ActivityIndicatorComponent />
   }
 
   return (
@@ -54,78 +70,95 @@ export default function RegisterUserScreen({ navigation }) {
           password: '',
           email: '',
           phone: '',
-          fotoPerfil: ''
+          fotoPerfil: '',
+          role: ''
         }}
         validationSchema={RegisterSchema}
         onSubmit={(values) => {
           createUser(values)
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-          <>
-            <TextInput
-              label="Usuário"
-              value={values.username}
-              onChangeText={handleChange('username')}
-              onBlur={handleBlur('username')}
-              error={touched.username && !!errors.username}
-              style={styles.input}
-            />
-            {touched.username && errors.username && <Text style={styles.error}>{errors.username}</Text>}
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => {
 
-            <TextInput
-              label="Senha"
-              secureTextEntry
-              value={values.password}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              error={touched.password && !!errors.password}
-              style={styles.input}
-            />
-            {touched.password && errors.password && <Text style={styles.error}>{errors.password}</Text>}
+          //Injetando a role
+          useEffect(() => {
+            setFieldValue('role', role)
+          }, [role])
 
-            <TextInput
-              label="Email"
-              keyboardType="email-address"
-              value={values.email}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              error={touched.email && !!errors.email}
-              style={styles.input}
-            />
-            {touched.email && errors.email && <Text style={styles.error}>{errors.email}</Text>}
+          return (
+            (
+              <>
+                <TextInput
+                  label="Usuário"
+                  value={values.username}
+                  onChangeText={handleChange('username')}
+                  onBlur={handleBlur('username')}
+                  error={touched.username && !!errors.username}
+                  style={styles.input}
+                />
+                {touched.username && errors.username && <Text style={styles.error}>{errors.username}</Text>}
 
-            <TextInput
-              label="Telefone"
-              keyboardType="phone-pad"
-              value={values.phone}
-              onChangeText={handleChange('phone')}
-              onBlur={handleBlur('phone')}
-              error={touched.phone && !!errors.phone}
-              style={styles.input}
-            />
-            {touched.phone && errors.phone && <Text style={styles.error}>{errors.phone}</Text>}
+                <TextInput
+                  label="Senha"
+                  secureTextEntry
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  error={touched.password && !!errors.password}
+                  style={styles.input}
+                />
+                {touched.password && errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
-            {imageUri && (
-              <Image source={{ uri: imageUri }} style={styles.image} />
-            )}
-            <Button
-              mode="outlined"
-              onPress={() => pickImage(setFieldValue)}
-              style={styles.button}
-            >
-              Selecionar Foto de Perfil
-            </Button>
+                <TextInput
+                  label="Email"
+                  keyboardType="email-address"
+                  value={values.email}
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                  error={touched.email && !!errors.email}
+                  style={styles.input}
+                />
+                {touched.email && errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
-            <Button mode="contained" onPress={handleSubmit} style={styles.button}>
-              Cadastrar
-            </Button>
+                <TextInput
+                  label="Telefone"
+                  keyboardType="phone-pad"
+                  value={values.phone}
+                  onChangeText={handleChange('phone')}
+                  onBlur={handleBlur('phone')}
+                  error={touched.phone && !!errors.phone}
+                  style={styles.input}
+                />
+                {touched.phone && errors.phone && <Text style={styles.error}>{errors.phone}</Text>}
 
-            <Button onPress={() => navigation.goBack()} style={styles.button} textColor="gray">
-              Voltar
-            </Button>
-          </>
-        )}
+                {imageUri && (
+                  <Image source={{ uri: imageUri }} style={styles.image} />
+                )}
+                <Button
+                  mode="outlined"
+                  onPress={() => pickImage(setFieldValue)}
+                  style={styles.button}
+                >
+                  Selecionar Foto de Perfil
+                </Button>
+
+                {/* ROLE */}
+                <TextInput
+                  value={values.role}
+                  onChangeText={handleChange('role')}
+                  style={{ display: 'none' }}
+                />
+
+                <Button mode="contained" onPress={handleSubmit} style={styles.button}>
+                  Cadastrar
+                </Button>
+
+                <Button onPress={() => navigation.goBack()} style={styles.button} textColor="gray">
+                  Voltar
+                </Button>
+              </>
+            ))
+        }}
       </Formik>
     </ScrollView>
   );
