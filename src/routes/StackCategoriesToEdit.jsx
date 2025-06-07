@@ -9,13 +9,10 @@ const Stack = createStackNavigator()
 
 export default function StackCategoriesToEdit() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen
         name='ListaScreen'
-        component={ListCategoriesScreen}
-        options={{
-          headerShown: false
-        }} />
+        component={ListCategoriesScreen}/>
       <Stack.Screen
         name='EditCategoryScreen'
         component={EditCategoryScreen}
