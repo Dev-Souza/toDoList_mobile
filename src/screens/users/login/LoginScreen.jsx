@@ -25,6 +25,9 @@ export default function LoginScreen({ navigation, route }) {
       setActivityIndicator(false)
       // Save token
       await AsyncStorage.setItem('@token', response.data.token);
+      // Save ID the user
+      await AsyncStorage.setItem('@userId', response.data.userId);
+
       // Caso dê certo vai para minha tela inicial
       navigation.navigate('Drawer');
     } catch (error) {
