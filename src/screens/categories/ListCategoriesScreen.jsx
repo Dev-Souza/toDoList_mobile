@@ -17,7 +17,7 @@ const colorMap = {
   CINZA: '#808080',
 };
 
-export default function ListCategoriesScreen() {
+export default function ListCategoriesScreen({navigation}) {
   const [token, setToken] = useState('');
   const [categories, setCategories] = useState([]);
   const [activityIndicator, setActivityIndicator] = useState(false);
@@ -124,7 +124,7 @@ export default function ListCategoriesScreen() {
             <View style={styles.actionContainer}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.editButton]}
-                onPress={() => handleEdit(item)}
+                onPress={() => navigation.navigate('EditCategoryScreen', item.id)}
               >
                 <Text style={styles.actionText}>Editar</Text>
               </TouchableOpacity>
