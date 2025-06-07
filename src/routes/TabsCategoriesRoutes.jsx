@@ -1,8 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons';
 
-import ListCategoriesScreen from '../screens/categories/ListCategoriesScreen';
+
 import NewCategoryScreen from '../screens/categories/NewCategoryScreen';
+import StackCategoriesToEdit from './StackCategoriesToEdit';
 
 const Tab = createBottomTabNavigator();
 
@@ -11,7 +12,7 @@ export default function TabsCategoriesRoutes() {
         <Tab.Navigator screenOptions={{ headerShown: false }}>
             <Tab.Screen
                 name="ListCategorias"
-                component={ListCategoriesScreen}
+                component={StackCategoriesToEdit}
                 options={{
                     title: "Lista Categorias",
                     tabBarIcon: ({ color, size }) => (
