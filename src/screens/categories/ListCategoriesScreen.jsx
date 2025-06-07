@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import toDoListService from '../../services/toDoListService';
 import ActivityIndicatorComponent from '../../components/ActivityIndicadorComponent';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Mapeamento das cores em português para códigos hexadecimais
 const colorMap = {
@@ -17,23 +18,23 @@ const colorMap = {
   CINZA: '#808080',
 };
 
-export default function ListCategoriesScreen({navigation}) {
+export default function ListCategoriesScreen({ navigation }) {
   const [token, setToken] = useState('');
   const [categories, setCategories] = useState([]);
   const [activityIndicator, setActivityIndicator] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setActivityIndicator(true);
-      const tokenStorage = await AsyncStorage.getItem('@token');
-      if (tokenStorage) {
-        setToken(tokenStorage);
-        await getCategories(tokenStorage);
-      }
-      setActivityIndicator(false);
-    };
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const loadData = async () => {
+        const tokenStorage = await AsyncStorage.getItem('@token');
+        if (tokenStorage) {
+          setToken(tokenStorage);
+          await getCategories(tokenStorage);
+        }
+      };
+      loadData();
+    }, [])
+  );
 
   const getCategories = async (tk) => {
     try {
