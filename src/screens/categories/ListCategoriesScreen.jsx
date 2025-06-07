@@ -65,8 +65,6 @@ export default function ListCategoriesScreen({ navigation }) {
           'Content-Type': 'application/json',
         }
       });
-
-      console.log(response.data);
       alert("Categoria excluída com sucesso!");
 
       // Recarrega as categorias
