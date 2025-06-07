@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -16,12 +16,16 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import toDoListService from '../../services/toDoListService';
 import { useNavigation } from '@react-navigation/native';
+import ActivityIndicatorComponent from '../../components/ActivityIndicadorComponent';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NewCategoryScreen() {
   const navigation = useNavigation();
   const [activityIndicator, setActivityIndicator] = useState(false);
   const [visibleColorMenu, setVisibleColorMenu] = useState(false);
   const [visibleTypeMenu, setVisibleTypeMenu] = useState(false);
+  const [id, setId] = useState('');
+  const [token, setToken] = useState('');
 
   const colorOptions = [
     'VERMELHO', 'AZUL', 'VERDE', 'AMARELO',
@@ -36,23 +40,44 @@ export default function NewCategoryScreen() {
   const validationSchema = Yup.object().shape({
     nameCategory: Yup.string().required('Nome é obrigatório'),
     descriptionCategory: Yup.string().required('Descrição é obrigatória'),
-    corCategoryEnum: Yup.string().required('Cor é obrigatória'),
-    tipoCategoryEnum: Yup.string().required('Tipo é obrigatório'),
+    corCategory: Yup.string().required('Cor é obrigatória'),
+    tipoCategory: Yup.string().required('Tipo é obrigatório'),
   });
+
+  // Carregar id e token antes de mostrar o formulário
+  useEffect(() => {
+    const fetchData = async () => {
+      const idUser = await AsyncStorage.getItem('@userId');
+      const tokenStorage = await AsyncStorage.getItem('@token');
+
+      if (idUser) setId(idUser);
+      if (tokenStorage) setToken(tokenStorage);
+    };
+    fetchData();
+  }, []);
 
   const createCategory = async (values) => {
     try {
-      setActivityIndicator(true)
-      console.log(values)
-      const response = await toDoListService.post("categories", values)
-      setActivityIndicator(false)
-      alert('Categoria criada com sucesso!');
-      // navigation.navigate('ListCategoriesScreen');
+      setActivityIndicator(true);
+      const response = await toDoListService.post("categories", values, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      alert(`Categoria ${response.data.nameCategory} criada com sucesso!`);
+      navigation.navigate('ListCategorias');
     } catch (error) {
-      alert("Erro ao cadastrar categoria!", error);
+      alert("Erro ao cadastrar categoria");
       console.log(error);
+    } finally {
+      setActivityIndicator(false);
     }
   };
+
+  if (activityIndicator) {
+    return <ActivityIndicatorComponent />;
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -62,10 +87,11 @@ export default function NewCategoryScreen() {
         initialValues={{
           nameCategory: '',
           descriptionCategory: '',
-          corCategoryEnum: '',
-          tipoCategoryEnum: '',
-          user: '',
+          corCategory: '',
+          tipoCategory: '',
+          user_id: id, // já inicializa aqui
         }}
+        enableReinitialize
         validationSchema={validationSchema}
         onSubmit={(values) => {
           createCategory(values);
@@ -116,16 +142,19 @@ export default function NewCategoryScreen() {
                 visible={visibleColorMenu}
                 onDismiss={() => setVisibleColorMenu(false)}
                 anchor={
-                  <TouchableWithoutFeedback onPress={() => setVisibleColorMenu(true)}>
+                  <TouchableWithoutFeedback onPress={() => {
+                    setVisibleColorMenu(true);
+                    setVisibleTypeMenu(false); // fecha o outro menu, se aberto
+                  }}>
                     <View pointerEvents="box-only">
                       <TextInput
                         mode="outlined"
                         label="Selecionar cor"
-                        value={values.corCategoryEnum}
+                        value={values.corCategory}
                         editable={false}
                         style={styles.input}
                         right={<TextInput.Icon icon="chevron-down" />}
-                        error={touched.corCategoryEnum && !!errors.corCategoryEnum}
+                        error={touched.corCategory && !!errors.corCategory}
                       />
                     </View>
                   </TouchableWithoutFeedback>
@@ -135,15 +164,15 @@ export default function NewCategoryScreen() {
                   <Menu.Item
                     key={color}
                     onPress={() => {
-                      setFieldValue('corCategoryEnum', color);
+                      setFieldValue('corCategory', color);
                       setVisibleColorMenu(false);
                     }}
                     title={color}
                   />
                 ))}
               </Menu>
-              <HelperText type="error" visible={touched.corCategoryEnum && !!errors.corCategoryEnum}>
-                {errors.corCategoryEnum}
+              <HelperText type="error" visible={touched.corCategory && !!errors.corCategory}>
+                {errors.corCategory}
               </HelperText>
             </View>
 
@@ -153,16 +182,19 @@ export default function NewCategoryScreen() {
                 visible={visibleTypeMenu}
                 onDismiss={() => setVisibleTypeMenu(false)}
                 anchor={
-                  <TouchableWithoutFeedback onPress={() => setVisibleTypeMenu(true)}>
+                  <TouchableWithoutFeedback onPress={() => {
+                    setVisibleTypeMenu(true);
+                    setVisibleColorMenu(false); // fecha o outro menu, se aberto
+                  }}>
                     <View pointerEvents="box-only">
                       <TextInput
                         mode="outlined"
                         label="Selecionar tipo"
-                        value={values.tipoCategoryEnum}
+                        value={values.tipoCategory}
                         editable={false}
                         style={styles.input}
                         right={<TextInput.Icon icon="chevron-down" />}
-                        error={touched.tipoCategoryEnum && !!errors.tipoCategoryEnum}
+                        error={touched.tipoCategory && !!errors.tipoCategory}
                       />
                     </View>
                   </TouchableWithoutFeedback>
@@ -172,15 +204,15 @@ export default function NewCategoryScreen() {
                   <Menu.Item
                     key={type}
                     onPress={() => {
-                      setFieldValue('tipoCategoryEnum', type);
+                      setFieldValue('tipoCategory', type);
                       setVisibleTypeMenu(false);
                     }}
                     title={type}
                   />
                 ))}
               </Menu>
-              <HelperText type="error" visible={touched.tipoCategoryEnum && !!errors.tipoCategoryEnum}>
-                {errors.tipoCategoryEnum}
+              <HelperText type="error" visible={touched.tipoCategory && !!errors.tipoCategory}>
+                {errors.tipoCategory}
               </HelperText>
             </View>
 
