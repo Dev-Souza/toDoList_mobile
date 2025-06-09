@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import toDoListService from '../../services/toDoListService';
 import ActivityIndicatorComponent from '../../components/ActivityIndicadorComponent';
@@ -20,6 +20,7 @@ const colorMap = {
 
 export default function ListCategoriesScreen({ navigation }) {
   const [token, setToken] = useState('');
+  const [idUser, setIdUser] = useState('');
   const [categories, setCategories] = useState([]);
   const [activityIndicator, setActivityIndicator] = useState(false);
 
@@ -27,19 +28,22 @@ export default function ListCategoriesScreen({ navigation }) {
     useCallback(() => {
       const loadData = async () => {
         const tokenStorage = await AsyncStorage.getItem('@token');
-        if (tokenStorage) {
+        const idUserStorage = await AsyncStorage.getItem('@userId');
+        if (tokenStorage && idUserStorage) {
           setToken(tokenStorage);
-          await getCategories(tokenStorage);
+          setIdUser(idUserStorage);
+          await getCategories(tokenStorage, idUserStorage);
         }
       };
       loadData();
     }, [])
   );
 
-  const getCategories = async (tk) => {
+  const getCategories = async (tk, id) => {
     try {
       setActivityIndicator(true);
-      const response = await toDoListService.get('categories', {
+      console.log("CHEGOU: " + id)
+      const response = await toDoListService.get(`categories/users/${id}`, {
         headers: {
           Authorization: `Bearer ${tk}`,
           'Content-Type': 'application/json',
