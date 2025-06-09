@@ -9,19 +9,13 @@ const Stack = createStackNavigator()
 
 export default function StackPendentesToEdit() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen
         name='PedentesStack'
-        component={PendentesScreen}
-        options={{
-            headerShown: false
-        }}/>
+        component={PendentesScreen}/>
       <Stack.Screen
         name='EditPendentes'
-        component={EditTaskScreen}
-        options={{
-          headerTitle: "Editar Tarefa"
-        }} />
+        component={EditTaskScreen} />
     </Stack.Navigator>
   )
 }

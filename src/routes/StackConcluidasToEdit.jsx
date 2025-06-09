@@ -15,10 +15,7 @@ export default function StackConcluidasToEdit() {
         component={ConcluidasScreen}/>
       <Stack.Screen
         name='EditConcluidas'
-        component={EditTaskScreen}
-        options={{
-          headerTitle: "Editar Tarefas"
-        }} />
+        component={EditTaskScreen} />
     </Stack.Navigator>
   )
 }

@@ -15,10 +15,7 @@ export default function StackEmAndamentoToEdit() {
         component={EmAndamentoScreen}/>
       <Stack.Screen
         name='EditEmAndamento'
-        component={EditTaskScreen}
-        options={{
-          headerTitle: "Editar Tarefa"
-        }} />
+        component={EditTaskScreen} />
     </Stack.Navigator>
   )
 }
