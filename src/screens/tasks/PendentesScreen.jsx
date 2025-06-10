@@ -118,9 +118,9 @@ export default function PendentesScreen({ navigation }) {
                   'Content-Type': 'application/json',
                 }
               });
-              Alert.alert("Sucesso", "Tarefa concluída com sucesso!");
+              alert("Tarefa concluída com sucesso!");
             } catch (error) {
-              Alert.alert("Erro", "Erro ao concluir tarefa.");
+              Alert.alert("Erro ao concluir tarefa.");
               console.log(error);
             } finally {
               setActivityIndicator(false);
@@ -159,9 +159,9 @@ export default function PendentesScreen({ navigation }) {
                   'Content-Type': 'application/json',
                 }
               });
-              Alert.alert("Sucesso", "Tarefa pendente excluída com sucesso!");
+              alert("Tarefa pendente excluída com sucesso!");
             } catch (error) {
-              Alert.alert("Erro", "Erro ao excluir tarefa pendente!");
+              alert("Erro ao excluir tarefa pendente!");
               console.log(error);
             } finally {
               setActivityIndicator(false);

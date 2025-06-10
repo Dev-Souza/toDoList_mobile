@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Text, Card, Title, Paragraph, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ActivityIndicatorComponent from '../../components/ActivityIndicadorComponent';
@@ -102,24 +102,40 @@ export default function ConcluidasScreen({navigation}) {
     navigation.navigate('EditConcluidas', {idTask: idTask});
   };
 
-  const handleDelete = async (itemId) => {
-    try {
-      setActivityIndicator(true);
-      const responseDelete = await toDoListService.delete(`tasks/${itemId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+   const handleDelete = (itemId) => {
+    // --- Confirmation Dialog Added ---
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir esta tarefa?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setActivityIndicator(true);
+              await toDoListService.delete(`tasks/${itemId}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              });
+              alert("Tarefa concluída excluída com sucesso!");
+            } catch (error) {
+              alert("Erro ao excluir tarefa concluída!");
+              console.log(error);
+            } finally {
+              setActivityIndicator(false);
+              getTasks(token, idUser);
+            }
+          }
         }
-      });
-      alert("Tarefa concluída excluída com sucesso!");
-    } catch (error) {
-      alert("Erro ao excluir tarefa concluída!" + error)
-      console.log(error);
-    } finally {
-      setActivityIndicator(false);
-      // GET ALL TASKS
-      getTasks(token, idUser);
-    }
+      ]
+    );
   };
 
   if (activityIndicator) return <ActivityIndicatorComponent />;

@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Text, Card, Title, Paragraph, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ActivityIndicatorComponent from '../../components/ActivityIndicadorComponent';
@@ -98,7 +98,39 @@ export default function EmAndamentoScreen({ navigation }) {
   };
 
   const handleMarkAsComplete = (itemId) => {
-    console.log('Marcar como concluído:', itemId);
+    // --- Confirmation Dialog Added ---
+    Alert.alert(
+      "Confirmar Conclusão",
+      "Tem certeza que deseja marcar esta tarefa como concluída?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Concluir",
+          onPress: async () => {
+            try {
+              setActivityIndicator(true);
+              // Corrected the service call to include headers for authorization
+              await toDoListService.put(`tasks/markCompleted/${itemId}`, {}, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              });
+              alert("Tarefa concluída com sucesso!");
+            } catch (error) {
+              alert("Erro ao concluir tarefa.");
+              console.log(error);
+            } finally {
+              setActivityIndicator(false);
+              getTasks(token, idUser);
+            }
+          }
+        }
+      ]
+    );
   };
 
   // EDITAR TASK
@@ -128,9 +160,9 @@ export default function EmAndamentoScreen({ navigation }) {
                   'Content-Type': 'application/json',
                 }
               });
-              Alert.alert("Sucesso", "Tarefa pendente excluída com sucesso!");
+              alert("Sucesso tarefa em andamento excluída com sucesso!");
             } catch (error) {
-              Alert.alert("Erro", "Erro ao excluir tarefa pendente!");
+              alert("Erro ao excluir tarefa pendente!");
               console.log(error);
             } finally {
               setActivityIndicator(false);
