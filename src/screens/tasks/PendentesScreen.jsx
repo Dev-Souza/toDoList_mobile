@@ -106,8 +106,24 @@ export default function PendentesScreen({navigation}) {
     navigation.navigate('EditPendentes', {idTask: idTask});
   };
 
-  const handleDelete = (itemId) => {
-    console.log('Excluir pendente:', itemId);
+  const handleDelete = async (itemId) => {
+    try {
+      setActivityIndicator(true);
+      const responseDelete = await toDoListService.delete(`tasks/${itemId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+      alert("Tarefa pendente excluída com sucesso!");
+    } catch (error) {
+      alert("Erro ao excluir tarefa pendente!" + error)
+      console.log(error);
+    } finally {
+      setActivityIndicator(false);
+      // GET ALL TASKS
+      getTasks(token, idUser);
+    }
   };
 
   if (activityIndicator) return <ActivityIndicatorComponent />;

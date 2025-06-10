@@ -106,8 +106,24 @@ export default function ConcluidasScreen({navigation}) {
     navigation.navigate('EditConcluidas', {idTask: idTask});
   };
 
-  const handleDelete = (itemId) => {
-    console.log('Excluir tarefa em andamento:', itemId);
+  const handleDelete = async (itemId) => {
+    try {
+      setActivityIndicator(true);
+      const responseDelete = await toDoListService.delete(`tasks/${itemId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+      alert("Tarefa concluída excluída com sucesso!");
+    } catch (error) {
+      alert("Erro ao excluir tarefa concluída!" + error)
+      console.log(error);
+    } finally {
+      setActivityIndicator(false);
+      // GET ALL TASKS
+      getTasks(token, idUser);
+    }
   };
 
   if (activityIndicator) return <ActivityIndicatorComponent />;
