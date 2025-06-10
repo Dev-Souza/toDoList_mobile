@@ -51,7 +51,7 @@ export default function ListCategoriesScreen({ navigation }) {
       });
       setCategories(response.data);
     } catch (error) {
-      alert('Erro ao buscar categorias!');
+      Alert.alert('Erro ao buscar categorias!');
       console.log(error);
     } finally {
       setActivityIndicator(false);
@@ -70,9 +70,8 @@ export default function ListCategoriesScreen({ navigation }) {
         }
       });
       alert("Categoria excluída com sucesso!");
-
       // Recarrega as categorias
-      await getCategories(token);
+      await getCategories(token, idUser);
 
     } catch (error) {
       alert("Erro ao excluir categoria");
@@ -109,12 +108,12 @@ export default function ListCategoriesScreen({ navigation }) {
       <Text style={styles.title}>Minhas Categorias</Text>
       <FlatList
         data={categories}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View
             style={[
               styles.categoryItem,
-              { borderLeftColor: colorMap[item.corCategory] || '#000' },
+              { borderLeftColor: colorMap[item.corCategory?.toUpperCase()] || '#000' },
             ]}
           >
             <Text style={styles.categoryName}>{item.nameCategory}</Text>
@@ -127,7 +126,7 @@ export default function ListCategoriesScreen({ navigation }) {
             <View style={styles.actionContainer}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.editButton]}
-                onPress={() => navigation.navigate('EditCategoryScreen', item.id)}
+                onPress={() => navigation.navigate('EditCategoryScreen', item.id )}
               >
                 <Text style={styles.actionText}>Editar</Text>
               </TouchableOpacity>
