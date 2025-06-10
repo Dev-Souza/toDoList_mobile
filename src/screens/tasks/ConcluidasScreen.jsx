@@ -19,7 +19,7 @@ const colorMap = {
   CINZA: '#808080',
 };
 
-export default function ConcluidasScreen({navigation}) {
+export default function ConcluidasScreen({ navigation }) {
   // STATE TASKS
   const [tasks, setTasks] = useState([]);
   // STATE TOKEN
@@ -68,7 +68,7 @@ export default function ConcluidasScreen({navigation}) {
       await Promise.all(
         uniqueCategoryIds.map(async (categoryId) => {
           if (!colorsObj[categoryId]) {
-            const color = await getColorCategory(token ,categoryId);
+            const color = await getColorCategory(token, categoryId);
             colorsObj[categoryId] = color;
           }
         })
@@ -99,10 +99,10 @@ export default function ConcluidasScreen({navigation}) {
 
   // EDITAR TASK
   const handleEdit = (idTask) => {
-    navigation.navigate('EditConcluidas', {idTask: idTask});
+    navigation.navigate('EditConcluidas', { idTask: idTask });
   };
 
-   const handleDelete = (itemId) => {
+  const handleDelete = (itemId) => {
     // --- Confirmation Dialog Added ---
     Alert.alert(
       "Confirmar Exclusão",
