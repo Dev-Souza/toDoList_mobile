@@ -97,10 +97,6 @@ export default function ConcluidasScreen({navigation}) {
     }
   };
 
-  const handleMarkAsComplete = (itemId) => {
-    console.log('Marcar como concluído:', itemId);
-  };
-
   // EDITAR TASK
   const handleEdit = (idTask) => {
     navigation.navigate('EditConcluidas', {idTask: idTask});
@@ -130,7 +126,7 @@ export default function ConcluidasScreen({navigation}) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Meus Concluídos</Text>
+      <Text style={styles.title}>Minhas Concluídas</Text>
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
@@ -146,6 +142,11 @@ export default function ConcluidasScreen({navigation}) {
                   <Icon name="close" size={22} color={colorMap.VERMELHO} />
                 </TouchableOpacity>
               </View>
+              {/* --- Visual indicator for completed task --- */}
+              <View style={styles.completedContainer}>
+                <Icon name="checkmark-circle" size={16} color={colorMap.VERDE} />
+                <Text style={styles.completedText}>Concluída</Text>
+              </View>
               <Paragraph style={styles.pendingDescription}>{item.descriptionTask}</Paragraph>
               <View style={styles.tagContainer}>
                 <Text style={styles.tag}>{item.priorityTask}</Text>
@@ -154,16 +155,7 @@ export default function ConcluidasScreen({navigation}) {
 
             <Card.Actions style={styles.cardActions}>
               <View style={styles.actionsWrapper}>
-                <Button
-                  icon="check"
-                  mode="contained"
-                  onPress={() => handleMarkAsComplete(item.id)}
-                  style={styles.actionButton}
-                  labelStyle={styles.actionButtonText}
-                  theme={{ colors: { primary: colorMap.VERDE } }}
-                >
-                  Concluir
-                </Button>
+                {/* --- Edit Button --- */}
                 <Button
                   icon="pencil"
                   mode="contained"
@@ -179,7 +171,7 @@ export default function ConcluidasScreen({navigation}) {
           </Card>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhum item concluído encontrado.</Text>
+          <Text style={styles.emptyText}>Nenhuma tarefa concluída encontrada.</Text>
         }
       />
     </View>
@@ -221,14 +213,23 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 10,
   },
-  completedIcon: {
-    marginRight: 8,
-  },
   deleteButton: {
     padding: 4,
   },
-  pendingDescription: {
+  // --- Style for the completed task indicator ---
+  completedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 4,
+  },
+  completedText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: colorMap.VERDE,
+    fontWeight: 'bold',
+  },
+  pendingDescription: {
+    marginTop: 8, // Adjusted margin
     fontSize: 14,
     color: '#666',
   },
@@ -247,6 +248,7 @@ const styles = StyleSheet.create({
   cardActions: {
     paddingHorizontal: 10,
     paddingBottom: 8,
+    justifyContent: 'flex-end', // Aligns actions to the right
   },
   actionsWrapper: {
     flexDirection: 'row',
