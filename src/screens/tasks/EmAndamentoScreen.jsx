@@ -19,7 +19,7 @@ const colorMap = {
   CINZA: '#808080',
 };
 
-export default function EmAndamentoScreen({navigation}) {
+export default function EmAndamentoScreen({ navigation }) {
   // STATE TASKS
   const [tasks, setTasks] = useState([]);
   // STATE TOKEN
@@ -68,7 +68,7 @@ export default function EmAndamentoScreen({navigation}) {
       await Promise.all(
         uniqueCategoryIds.map(async (categoryId) => {
           if (!colorsObj[categoryId]) {
-            const color = await getColorCategory(token ,categoryId);
+            const color = await getColorCategory(token, categoryId);
             colorsObj[categoryId] = color;
           }
         })
@@ -103,27 +103,43 @@ export default function EmAndamentoScreen({navigation}) {
 
   // EDITAR TASK
   const handleEdit = (idTask) => {
-    navigation.navigate('EditEmAndamento', {idTask: idTask});
+    navigation.navigate('EditEmAndamento', { idTask: idTask });
   };
 
-  const handleDelete = async (itemId) => {
-    try {
-      setActivityIndicator(true);
-      const responseDelete = await toDoListService.delete(`tasks/${itemId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+  const handleDelete = (itemId) => {
+    // --- Confirmation Dialog Added ---
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir esta tarefa?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setActivityIndicator(true);
+              await toDoListService.delete(`tasks/${itemId}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              });
+              Alert.alert("Sucesso", "Tarefa pendente excluída com sucesso!");
+            } catch (error) {
+              Alert.alert("Erro", "Erro ao excluir tarefa pendente!");
+              console.log(error);
+            } finally {
+              setActivityIndicator(false);
+              getTasks(token, idUser);
+            }
+          }
         }
-      });
-      alert("Tarefa em andamento excluída com sucesso!");
-    } catch (error) {
-      alert("Erro ao excluir tarefa em andamento!" + error)
-      console.log(error);
-    } finally {
-      setActivityIndicator(false);
-      // GET ALL TASKS
-      getTasks(token, idUser);
-    }
+      ]
+    );
   };
 
   if (activityIndicator) return <ActivityIndicatorComponent />;
