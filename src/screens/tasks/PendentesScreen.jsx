@@ -1,6 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { useCallback, useState } from 'react';
+// Import Alert from react-native
+import { StyleSheet, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Text, Card, Title, Paragraph, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ActivityIndicatorComponent from '../../components/ActivityIndicadorComponent';
@@ -19,7 +20,7 @@ const colorMap = {
   CINZA: '#808080',
 };
 
-export default function PendentesScreen({navigation}) {
+export default function PendentesScreen({ navigation }) {
   // STATE TASKS
   const [tasks, setTasks] = useState([]);
   // STATE TOKEN
@@ -60,23 +61,21 @@ export default function PendentesScreen({navigation}) {
 
       setTasks(response.data);
 
-      // Carrega as cores das categorias das tasks, apenas uma vez por categoria
       const uniqueCategoryIds = [...new Set(response.data.map(task => task.category_id))];
-
       const colorsObj = { ...categoryColors };
 
       await Promise.all(
         uniqueCategoryIds.map(async (categoryId) => {
           if (!colorsObj[categoryId]) {
-            const color = await getColorCategory(token ,categoryId);
+            const color = await getColorCategory(token, categoryId);
             colorsObj[categoryId] = color;
           }
         })
       );
       setCategoryColors(colorsObj);
     } catch (error) {
-      alert("Erro ao buscar tasks");
-      console.log(error);
+      // Avoid using alert for error reporting in production
+      console.log("Erro ao buscar tasks", error);
     } finally {
       setActivityIndicator(false);
     }
@@ -98,32 +97,80 @@ export default function PendentesScreen({navigation}) {
   };
 
   const handleMarkAsComplete = (itemId) => {
-    console.log('Marcar como concluído:', itemId);
+    // --- Confirmation Dialog Added ---
+    Alert.alert(
+      "Confirmar Conclusão",
+      "Tem certeza que deseja marcar esta tarefa como concluída?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Concluir",
+          onPress: async () => {
+            try {
+              setActivityIndicator(true);
+              // Corrected the service call to include headers for authorization
+              await toDoListService.put(`tasks/markCompleted/${itemId}`, {}, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              });
+              Alert.alert("Sucesso", "Tarefa concluída com sucesso!");
+            } catch (error) {
+              Alert.alert("Erro", "Erro ao concluir tarefa.");
+              console.log(error);
+            } finally {
+              setActivityIndicator(false);
+              getTasks(token, idUser);
+            }
+          }
+        }
+      ]
+    );
   };
 
   // EDITAR TASK
   const handleEdit = (idTask) => {
-    navigation.navigate('EditPendentes', {idTask: idTask});
+    navigation.navigate('EditPendentes', { idTask: idTask });
   };
 
-  const handleDelete = async (itemId) => {
-    try {
-      setActivityIndicator(true);
-      const responseDelete = await toDoListService.delete(`tasks/${itemId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+  const handleDelete = (itemId) => {
+    // --- Confirmation Dialog Added ---
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir esta tarefa?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setActivityIndicator(true);
+              await toDoListService.delete(`tasks/${itemId}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              });
+              Alert.alert("Sucesso", "Tarefa pendente excluída com sucesso!");
+            } catch (error) {
+              Alert.alert("Erro", "Erro ao excluir tarefa pendente!");
+              console.log(error);
+            } finally {
+              setActivityIndicator(false);
+              getTasks(token, idUser);
+            }
+          }
         }
-      });
-      alert("Tarefa pendente excluída com sucesso!");
-    } catch (error) {
-      alert("Erro ao excluir tarefa pendente!" + error)
-      console.log(error);
-    } finally {
-      setActivityIndicator(false);
-      // GET ALL TASKS
-      getTasks(token, idUser);
-    }
+      ]
+    );
   };
 
   if (activityIndicator) return <ActivityIndicatorComponent />;
@@ -133,7 +180,7 @@ export default function PendentesScreen({navigation}) {
       <Text style={styles.title}>Meus Pendentes</Text>
       <FlatList
         data={tasks}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Card style={[
             styles.pendingCard,
@@ -220,9 +267,6 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
     marginRight: 10,
-  },
-  completedIcon: {
-    marginRight: 8,
   },
   deleteButton: {
     padding: 4,
