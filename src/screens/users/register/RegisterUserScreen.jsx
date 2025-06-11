@@ -44,14 +44,38 @@ export default function RegisterUserScreen({ navigation }) {
   const createUser = async (values) => {
     try {
       setActivityIndicator(true);
-      const response = await toDoListService.post('users', values);
+
+      const formData = new FormData();
+      formData.append('username', values.username);
+      formData.append('password', values.password);
+      formData.append('email', values.email);
+      formData.append('phone', values.phone);
+      formData.append('role', values.role);
+
+      // IF GO IMAGE
+      if (values.fotoPerfil) {
+        const uri = values.fotoPerfil;
+        const uriParts = imageUri.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+
+        formData.append('fotoPerfil', {
+          uri,
+          name: `photo.${fileType}`,
+          type: `image/${fileType}`,
+        });
+      }
+      const response = await toDoListService.post('users', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Este cabeçalho é crucial
+        },
+      });
       alert("Cadastrado com sucesso!");
       // Config navigation
       navigation.goBack()
     } catch (error) {
       console.log(error.response?.data?.message || error.message || '')
       alert("Algum erro aconteceu! " + (error.response?.data?.message || error.message || ''));
-      
+
     } finally {
       setActivityIndicator(false);
     }
