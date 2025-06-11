@@ -3,10 +3,9 @@ import { Ionicons } from '@expo/vector-icons'
 
 import TabsMainScreenRoutes from './TabsTasksRoutes'
 import NewTaskScreen from '../screens/tasks/drawer/NewTaskScreen'
-import PerfilScreen from '../screens/users/PerfilScreen'
 import SairRoutes from './SairRoutes'
-import NewCategoryScreen from '../screens/categories/NewCategoryScreen'
 import TabsCategoriesRoutes from './TabsCategoriesRoutes'
+import StackPerfilToEdit from './StackPerfilToEdit'
 
 const Drawer = createDrawerNavigator()
 
@@ -45,7 +44,7 @@ export default function DrawerMainScreenRoutes() {
             />
             <Drawer.Screen
                 name='PerfilScreen'
-                component={PerfilScreen}
+                component={StackPerfilToEdit}
                 options={{
                     title: 'Perfil',
                     drawerIcon: ({ color, size }) => (
