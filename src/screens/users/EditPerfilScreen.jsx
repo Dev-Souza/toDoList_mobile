@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import toDoListService from '../../services/toDoListService';
 import { TextInput, Button } from 'react-native-paper';
 import { Formik } from 'formik';
+import { TextInputMask } from 'react-native-masked-text';
 
 export default function EditPerfilScreen({ navigation, route }) {
   const [idUser, setIdUser] = useState('');
@@ -160,6 +161,17 @@ export default function EditPerfilScreen({ navigation, route }) {
               onChangeText={handleChange('phone')}
               onBlur={handleBlur('phone')}
               style={styles.input}
+              render={(props) => (
+                <TextInputMask
+                  {...props}
+                  type='cel-phone'
+                  options={{
+                    maskType: 'BRL',
+                    withDDD: true,
+                    dddMask: '(61)'
+                  }}
+                />
+              )}
             />
 
             {imageUri ? (
@@ -176,6 +188,9 @@ export default function EditPerfilScreen({ navigation, route }) {
             <Button mode="contained" onPress={handleSubmit} style={styles.button}>
               Salvar Alterações
             </Button>
+            <Button mode="contained-tonal" onPress={() => navigation.goBack()} style={styles.button}>
+              Voltar
+            </Button>
           </View>
         )}
       </Formik>
@@ -191,7 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    marginTop: 20,
+    marginTop: 2,
   },
   image: {
     width: 150,

@@ -6,6 +6,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import toDoListService from '../../../services/toDoListService';
 import ActivityIndicatorComponent from '../../../components/ActivityIndicadorComponent';
+import { TextInputMask } from 'react-native-masked-text';
 
 // Validação com Yup
 const RegisterSchema = Yup.object().shape({
@@ -154,6 +155,17 @@ export default function RegisterUserScreen({ navigation }) {
                   onBlur={handleBlur('phone')}
                   error={touched.phone && !!errors.phone}
                   style={styles.input}
+                  render={(props) => (
+                    <TextInputMask 
+                      {...props}
+                      type='cel-phone'
+                      options={{
+                        maskType: 'BRL',
+                        withDDD: true,
+                        dddMask: '(61)'
+                      }}
+                    />
+                  )}
                 />
                 {touched.phone && errors.phone && <Text style={styles.error}>{errors.phone}</Text>}
 
