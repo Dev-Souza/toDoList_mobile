@@ -41,7 +41,7 @@ export default function EditPerfilScreen({ navigation, route }) {
           'Content-Type': 'application/json',
         }
       });
-      userResponse.data.fotoPerfil = 'http://10.30.32.95:8080/uploads/' + userResponse.data.fotoPerfil;
+      userResponse.data.fotoPerfil = 'http://192.168.1.128:8080/uploads/' + userResponse.data.fotoPerfil;
       setUser(userResponse.data);
       setImageUri(userResponse.data.fotoPerfil);
     } catch (error) {
@@ -101,7 +101,6 @@ export default function EditPerfilScreen({ navigation, route }) {
           'Content-Type': 'multipart/form-data', // Este cabeçalho é crucial
         }
       })
-      console.log("EDITADO: " + responseuserUpdated.data.fotoPerfil)
       alert("Perfil alterado com sucesso!");
       navigation.goBack();
     } catch (error) {
@@ -122,6 +121,7 @@ export default function EditPerfilScreen({ navigation, route }) {
           userName: user.userName || '',
           email: user.email || '',
           phone: user.phone || '',
+          fotoPerfil: user.fotoPerfil || '',
         }}
         onSubmit={values => updateUser(values)}
       >

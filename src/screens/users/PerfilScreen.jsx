@@ -44,9 +44,7 @@ export default function PerfilScreen({ navigation }) {
         }
       })
       // Formatted pattern photo perfil
-      userResponse.data.fotoPerfil = 'http://10.30.32.95:8080/uploads/' + userResponse.data.fotoPerfil;
-      console.log("FOTO: " + userResponse.data.fotoPerfil);
-      console.log(userResponse.data)
+      userResponse.data.fotoPerfil = 'http://192.168.1.128:8080/uploads/' + userResponse.data.fotoPerfil;
       setUser(userResponse.data);
     } catch (error) {
       alert("Erro ao carregar user!", error);
